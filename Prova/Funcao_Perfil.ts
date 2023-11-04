@@ -1,5 +1,5 @@
 // 01 - Criar as classes
- class Perfil{ // a) Perfil
+export class Perfil{ // a) Perfil
     private _id : number
     private _nome : string
     private _email : string
@@ -24,7 +24,7 @@
 
 }
 
- class Postagem{ // b) Postagem
+export class Postagem{ // b) Postagem
     private _id : number
     private _curtidas : number
     private _texto : string
@@ -75,12 +75,13 @@
         this._descurtidas++
     }
 
-    ehPopular() : boolean{
-        return this._curtidas > 1.5 * this._descurtidas
+    ehPopular(): boolean {
+        return this._curtidas >= 1.5 * this._descurtidas;
     }
+    
 }
 
- class PostagemAvancada extends Postagem {
+export class PostagemAvancada extends Postagem {
     private _hashtags: string[];
     private _visualizacoesRestantes: number;
 
@@ -119,7 +120,7 @@
 }
 
 // 3) CLASSE REPOSITORIO DE PERFIS
- class RepositorioDePerfis {
+export class RepositorioDePerfis {
     private _perfis: Perfil[] = [];
 
     incluir(perfil: Perfil): void {
@@ -144,7 +145,7 @@
 }
   
 // 4) criar a classe RepositorioDePostagens
- class RepositorioDePostagens {
+export class RepositorioDePostagens {
     private _postagens: Postagem[] = [];
 
     incluir(postagem: Postagem): void {
@@ -189,8 +190,8 @@
 }
 
 
-
-
+/*
+//imprimir
 // Criando perfis
 const perfil1 = new Perfil(1, "Alice", "alice@example.com");
 const perfil2 = new Perfil(2, "Bob", "bob@example.com");
@@ -215,16 +216,38 @@ repositorioPostagens.incluir(postagem3);
 
 // Exemplos de consultas
 console.log("Exemplo 1: Todas as postagens:");
-console.log(repositorioPostagens.consultar());
-
-console.log("Exemplo 2: Consultar postagem por ID:");
-console.log(repositorioPostagens.consultar(2));
+const todasAsPostagens = repositorioPostagens.consultar();
+imprimirPostagens(todasAsPostagens);
 
 console.log("Exemplo 3: Consultar postagens por texto:");
-console.log(repositorioPostagens.consultar(undefined, "Texto da postagem 1"));
+const postagensPorTexto = repositorioPostagens.consultar(undefined, "Texto da postagem 1");
+imprimirPostagens(postagensPorTexto);
 
 console.log("Exemplo 4: Consultar postagens por hashtag:");
-console.log(repositorioPostagens.consultar(undefined, undefined, "#hash1"));
+const postagensPorHashtag = repositorioPostagens.consultar(undefined, undefined, "#hash1");
+imprimirPostagens(postagensPorHashtag);
 
 console.log("Exemplo 5: Consultar postagens por perfil:");
-console.log(repositorioPostagens.consultar(undefined, undefined, undefined, perfil3));
+const postagensPorPerfil = repositorioPostagens.consultar(undefined, undefined, undefined, perfil3);
+imprimirPostagens(postagensPorPerfil);
+
+function imprimirPostagens(postagens: Postagem[]): void {
+    for (const postagem of postagens) {
+        imprimirPostagem(postagem);
+    }
+}
+
+function imprimirPostagem(postagem: Postagem): void {
+    console.log(`ID: ${postagem.id}`);
+    console.log(`Curtidas: ${postagem.curtidas}`);
+    console.log(`Texto: ${postagem.texto}`);
+    console.log(`Descurtidas: ${postagem.descurtidas}`);
+    console.log(`Perfil: ID ${postagem.perfil.id}, Nome: ${postagem.perfil.nome}, Email: ${postagem.perfil.email}`);
+    console.log(`Data: ${postagem.data}`);
+    if (postagem instanceof PostagemAvancada) {
+        console.log(`Hashtags: ${postagem.hashtags.join(', ')}`);
+        console.log(`Visualizações Restantes: ${postagem.visualizacoesRestantes}`);
+    }
+    console.log("------");
+}
+*/
