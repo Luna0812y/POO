@@ -3,6 +3,7 @@ export class Perfil{ // a) Perfil
     private _id : number
     private _nome : string
     private _email : string
+    private _postagens : Postagem[] = []
 
    constructor (id : number, nome : string, email: string){
         this._id = id
@@ -22,48 +23,58 @@ export class Perfil{ // a) Perfil
         return this._email
     }
 
+    get postagens(): Postagem[]{
+        return this._postagens
+    }
+
+    adicionarPostagem(postagem: Postagem): void {
+        this._postagens.push(postagem);
+    }    
+
 }
 
-export class Postagem{ // b) Postagem
+export class Postagem { // b) Postagem
     private _id : number
-    private _curtidas : number
     private _texto : string
+    private _curtidas : number
     private _descurtidas : number
-    private _perfil : Perfil
     private _data : Date
+    private _perfil : Perfil
 
-    constructor (id : number, curtidas : number, texto : string, descurtidas : number,
-        perfil : Perfil, data : Date){
+    constructor (id : number, texto : string, data : Date,  perfil : Perfil){
             //falta o super
         this._id = id
-        this._curtidas = curtidas
         this._texto = texto
-        this._descurtidas = descurtidas
-        this._perfil = perfil
+        this._curtidas = 0
+        this._descurtidas = 0
         this._data = data
+        this._perfil = perfil
     }
 
     get id() : number{
         return this._id
     }
     
-    get curtidas() : number{
-        return this._curtidas
-    }
     get texto() : string{        
         return this._texto
     }
+    
+    get curtidas() : number{
+        return this._curtidas
+    }
+
     get descurtidas() : number{
         return this._descurtidas
+    }
+
+    get data() : Date{
+        return this._data
     }
 
     get perfil() : Perfil{
         return this._perfil
     }
 
-    get data() : Date{
-        return this._data
-    }
 
     // 2) Criar os métodos
     //a)
@@ -85,9 +96,9 @@ export class PostagemAvancada extends Postagem {
     private _hashtags: string[];
     private _visualizacoesRestantes: number;
 
-    constructor(id: number, curtidas: number, texto: string, descurtidas: number, 
-                perfil: Perfil, data: Date, hashtags: string[], visualizacoesRestantes: number) {
-        super(id, curtidas, texto, descurtidas, perfil, data);
+    constructor(id: number, texto: string, perfil: Perfil, data: Date, hashtags: string[], 
+        visualizacoesRestantes: number) {
+        super(id, texto, data, perfil);
         this._hashtags = hashtags;
         this._visualizacoesRestantes = visualizacoesRestantes;
     }
@@ -124,10 +135,22 @@ export class RepositorioDePerfis {
     private _perfis: Perfil[] = [];
 
     incluir(perfil: Perfil): void {
-      this._perfis[this._perfis.length] = perfil;
+        const perfilExistente = this.consultar(perfil.id, perfil.nome, perfil.email);
+        if (perfilExistente) {
+            console.log("Já existe um perfil com o mesmo ID, nome ou e-mail.");
+            return;
+        }
+        this._perfis.push(perfil);
     }
+    
   
-    consultar(id: number, nome: string, email: string): Perfil | undefined {
+    /* é usando o operador "?" por uma maneira de indicar que o parâmetro não é 
+    obrigatório e pode ser omitido na chamada da função, ou seja, ele pode ser undefined.*/
+    consultar(id?: number, nome?: string, email?: string): Perfil | null {
+    /*verifica se pelo menos um dos parâmetros de busca foi fornecido e, em seguida, 
+    verifica se há um perfil no array this._perfis que corresponde a todos os critérios 
+    de busca. Se encontrar um perfil correspondente, ele é retornado; caso contrário, o
+    método retorna null */
         if (id !== undefined || nome !== undefined || email !== undefined) {
             for (const perfil of this._perfis) {
                 const idMatch = id === undefined || perfil.id === id;
@@ -139,7 +162,7 @@ export class RepositorioDePerfis {
                 }
             }
         }
-        return undefined;
+        return null;
     }
     
 }
@@ -149,9 +172,19 @@ export class RepositorioDePostagens {
     private _postagens: Postagem[] = [];
 
     incluir(postagem: Postagem): void {
-        this._postagens[this._postagens.length] = postagem;
+        const postagemExistente = this.consultar(postagem.id);
+        if (postagemExistente) {
+            console.log("Já existe uma postagem com o mesmo ID.");
+            return;
+        }
+        this._postagens.push(postagem);
     }
+    
 
+    /*filtra postagens com base em critérios como id, texto, hashtag e perfil. Se nenhum 
+    critério for dado, retorna todas as postagens. Usa filter() para verificar 
+    correspondências e retorna um array das postagens que atendem aos 
+    critérios fornecidos. */
     consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] {
         if (id === undefined && texto === undefined && hashtag === undefined && perfil === undefined) {
             return this._postagens; // Retorna todas as postagens se nenhum critério é fornecido.
@@ -177,7 +210,8 @@ export class RepositorioDePostagens {
         });
     }    
     
-    
+    /* filtrar postagens com base em um fragmento específico de texto 
+    fornecido como critério de consulta. */
     verificarSubstring(substring: string, texto: string): boolean {
         for (let i = 0; i <= texto.length - substring.length; i++) {
             if (texto.substring(i, i + substring.length) === substring) {
