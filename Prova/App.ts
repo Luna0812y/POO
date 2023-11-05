@@ -1,133 +1,149 @@
-import prompt from 'prompt-sync'
-const input = prompt()
-import { RedeSocial } from './rede_social';
-import { Perfil, Postagem, PostagemAvancada } from './Funcao_Perfil';
-import { RepositorioDePerfis, RepositorioDePostagens } from './Funcao_Perfil';
+import prompt from 'prompt-sync';
+const input = prompt();
+import { RedeSocial } from './rede_social'
+import { Perfil, Postagem, PostagemAvancada } from './Funcao_Perfil'
 
 class App {
-    private _redeSocial: RedeSocial;
+    private _redeSocial: RedeSocial
+
+    constructor() {
+        this._redeSocial = new RedeSocial()
+    }
 
     exibirMenu(): void {
-        let escolha: number;
+        let escolha: number
         
         while (true) {
-            console.log("Menu:");
-            console.log("1. Incluir Um Novo Perfil");
-            console.log("2. Consultar Perfil");
-            console.log("3. Incluir Postagem");
-            console.log("4. Consultar Postagem");
-            console.log("5. Curtir");
-            console.log("6. Descurtir");
-            console.log("7. Decrementar Vizualizações");
-            console.log("8. Exibir Postagens Por Perfil");
-            console.log("9. Exibir Postagens Por Hashtag");
-            console.log("0. Sair");
+            console.log("Menu:")
+            console.log("1. Incluir Perfil")
+            console.log("2. Consultar Perfil")
+            console.log("3. Incluir Postagem")
+            console.log("4. Consultar Postagens")
+            console.log("5. Curtir Postagem")
+            console.log("6. Descurtir Postagem")
+            console.log("7. Decrementar Vizualizações")
+            console.log("8. Exibir Postagens Por Perfil")
+            console.log("9. Exibir Postagens Por Hashtag")
+            console.log("0. Sair")
 
-            escolha = parseInt(input("Escolha uma opção: "));
+            escolha = parseInt(input("Escolha uma opção: "))
 
             if (escolha === 1) 
             {
-                const id: number = parseInt(input("Digite o ID do perfil: "));
-                const nome: string = input("Digite o nome do perfil: ");
-                const email: string = input("Digite o email do perfil: ");
+                const id = parseInt(input("Digite o ID do perfil: "))
+                const nome = input("Digite o nome do perfil: ")
+                const email = input("Digite o email do perfil: ")
 
-                const novoPerfil: Perfil = new Perfil(id, nome, email)
-                this._redeSocial.incluirPerfil(novoPerfil);
+                const perfil = new Perfil(id, nome, email)
+                this._redeSocial.incluirPerfil(perfil)
+                console.log("Perfil incluído com sucesso.")
             } 
             
             else if (escolha === 2) 
             {
                 // Lógica para consultar perfil
-                const id: number = parseInt(input("Digite o ID do perfil: "));
-                const perfilConsultado = this._redeSocial.consultarPerfil(id, '', '');
-                console.log(perfilConsultado);
+                const id = parseInt(input("Digite o ID do perfil: "))
+                const perfilConsultado = this._redeSocial.consultarPerfil(id, '', '')
+                if (perfilConsultado) {
+                    console.log(`ID: ${perfilConsultado.id}, Nome: ${perfilConsultado.nome}, Email: ${perfilConsultado.email}`)
+                } else {
+                    console.log("Perfil não encontrado.")
+                }
             } 
             
             else if (escolha === 3) 
             {
-                const id: number = parseInt(input("Digite o ID do perfil: "));
-                const texto: string = input("Digite o texto que deseja: ");
-                const perfil: string = input("Digite um perfil: ");
-                const dataString: string = input("Digite uma data (formato YYYY-MM-DD): ");
-                const data: Date = new Date(dataString);
-
-                if (isNaN(data.getTime())) {
-                    console.log("Data inválida. Por favor, digite uma data válida no formato YYYY-MM-DD.");
+                const idPostagem = parseInt(input("Digite o ID da postagem: "))
+                const texto = input("Digite o texto da postagem: ")
+                const idPerfil = parseInt(input("Digite o ID do perfil da postagem: "))
+                const hashtags = input("Digite as hashtags da postagem separadas por vírgula: ").split(",")
+                const visualizacoesRestantes = parseInt(input("Digite o número de visualizações restantes da postagem: "))
+                const perfilPostagem = this._redeSocial.consultarPerfil(idPerfil, "", "")
+                if (perfilPostagem) {
+                    const data = new Date() // Obtém a data e hora atual
+                    const postagem = new PostagemAvancada(idPostagem, texto, perfilPostagem, data,hashtags, visualizacoesRestantes)
+                    this._redeSocial.incluirPostagem(postagem)
+                    console.log("Postagem incluída com sucesso.")
                 } else {
-                    console.log("Data válida: ", data);
+                    console.log("Perfil não encontrado. Não foi possível incluir a postagem.")
                 }
-                const hashtag: string = input("Digite uma/umas hashtag: ");
-
-                const postagem: PostagemAvancada = new PostagemAvancada(id, 0, texto, 0, perfil, data, hashtag, 0)
-                this._redeSocial.incluirPostagem(postagem);
             }  
             
             else if (escolha === 4) 
             {
-
-                const id: number = parseInt(input("Digite o ID da postagem: "));
-                const texto: string = input("Digite o texto da postagem: ");
-                const hashtag: string = input("Digite a hashtag da postagem: ");
-                const perfil: string = input("Digite o perfil da postagem: ");
-
-                const postagemConsultada = this._redeSocial.consultarPostagens(id, texto, hashtag, perfil);
-                console.log(postagemConsultada);
+                const idPostagemConsulta = parseInt(input("Digite o ID da postagem a ser consultada: "))
+                const hashtagConsulta = input("Digite a hashtag da postagem a ser consultada: ")
+                const idPerfil = parseInt(input("Digite o ID do perfil: "))
+                const texto = input("Digite o texto da postagem: ")
+                const postagensConsultadas = this._redeSocial.consultarPostagens(idPostagemConsulta, texto, hashtagConsulta, idPerfil)
+                if (postagensConsultadas.length > 0) {
+                    postagensConsultadas.forEach(p => {
+                        console.log(`ID: ${p.id}, Texto: ${p.texto}, Hashtags: ${p.hashtags.join(", ")}, Visualizações Restantes: ${p.visualizacoesRestantes}, , 
+                        Curtidas: ${p.curtidas}, Descurtidas: ${p.descurtidas}`)
+                    })
+                } else {
+                    console.log("Nenhuma postagem encontrada.")
+                }
             } 
             
             else if (escolha === 5) 
             {
-                // Lógica para curtir
-                const idPostagem: number = parseInt(input("Digite o ID da postagem para curtir: "));
-                this._redeSocial.curtir(idPostagem);
+                const idCurtir = parseInt(input("Digite o ID da postagem a ser curtida: "))
+                this._redeSocial.curtir(idCurtir)
+                console.log("Postagem curtida com sucesso.")
             } 
             
             else if (escolha === 6) 
             {
-                // Lógica para descurtir
-                const idPostagem: number = parseInt(input("Digite o ID da postagem para descurtir: "));
-                this._redeSocial.descurtir(idPostagem);
+                const idDescurtir = parseInt(input("Digite o ID da postagem para descurtir: "))
+                this._redeSocial.descurtir(idDescurtir)
+                console.log("Postagem descurtida com sucesso.")
             } 
             
             else if (escolha === 7) 
             {
-                const postagem: PostagemAvancada = input("Digite o ID do perfil onde está a postagem: ")
-                const postagemDecremetada =  this._redeSocial.decrementarVisualizacoes(postagem)
-                console.log(postagemDecremetada)
+                const idDecrementarVisualizacoes = parseInt(input("Digite o ID da postagem para decrementar visualizações: "));
+                const postagemDecrementarVisualizacoes = this._redeSocial.consultarPostagens(idDecrementarVisualizacoes, "", "", undefined)[0];
+                if (postagemDecrementarVisualizacoes instanceof PostagemAvancada) {
+                    this._redeSocial.decrementarVisualizacoes(postagemDecrementarVisualizacoes);
+                } else {
+                    console.log("Postagem não encontrada ou não é avançada.");
+                }
+
             } 
             
             else if (escolha === 8) 
             {
-                // Lógica para exibir postagens por perfil
-                const idPerfil: number = parseInt(input("Digite o ID do perfil: "));
-                const postagens = this._redeSocial.exibirPostagensPorPerfil(idPerfil);
-                console.log(postagens);
+                const idExibirPorPerfil = parseInt(input("Digite o ID do perfil para exibir postagens: "));
+                const postagensPorPerfil = this._redeSocial.exibirPostagensPorPerfil(idExibirPorPerfil);
+                postagensPorPerfil.forEach(p => {
+                    console.log(`ID: ${p.id}, Texto: ${p.texto}, Curtidas: ${p.curtidas}, Descurtidas: ${p.descurtidas}, Hashtags: ${p.hashtags.join(", ")}, Visualizações Restantes: ${p.visualizacoesRestantes}`);
+                });
             } 
             
             else if (escolha === 9) 
             {
-                // Lógica para exibir postagens por hashtag
-                const hashtag: string = input("Digite a hashtag: ");
-                const postagens = this._redeSocial.exibirPostagensPorHashtag(hashtag);
-                console.log(postagens);
+                const hashtagExibir = input("Digite a hashtag para exibir postagens: ");
+                const postagensPorHashtag = this._redeSocial.exibirPostagensPorHashtag(hashtagExibir);
+                postagensPorHashtag.forEach(p => {
+                    console.log(`ID: ${p.id}, Texto: ${p.texto}, Curtidas: ${p.curtidas}, Descurtidas: ${p.descurtidas}, Hashtags: ${p.hashtags.join(", ")}, Visualizações Restantes: ${p.visualizacoesRestantes}`);
+                });
             } 
             
             else if (escolha === 0) 
             {
-                console.log("Saindo do menu. Adeus!");
-                break;
+                console.log("Saindo do menu...")
+                break
             } 
             
             else 
             {
-                console.log("Opção inválida. Tente novamente.");
+                console.log("Opção inválida. Tente novamente.")
             }
         }
     }
 }
 
-// Exemplo de uso:
-const repositorioDePerfis = new RepositorioDePerfis(); // Substitua pelo construtor real
-const repositorioDePostagens = new RepositorioDePostagens(); // Substitua pelo construtor real
-const redeSocial = new RedeSocial(repositorioDePerfis, repositorioDePostagens);
-const app = new App(redeSocial);
+const app = new App();
 app.exibirMenu();
+
